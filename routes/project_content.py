@@ -3,8 +3,14 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from datetime import datetime
 from typing import List
-from ..schemas import BlogContent, BlogContentResponse, db
-from .. import oauth2
+from pydantic import BaseModel
+import json 
+
+
+
+
+
+# get projects.json file from  routes folder 
 
 
 router= APIRouter(
@@ -13,26 +19,34 @@ router= APIRouter(
 
 )
 
-@router.post("/", response_description="Create Project Content", response_model=BlogContentResponse)
-def create_project():
-    # each post request creates a json file 
-    # with the name of the project
-    pass
+@router.get("/", response_description="Get Projects")
+async def get_project_content():
+    # if response is good return data 
+    try:
+        with open("routes/projects.json", "r") as f:
+            data = json.load(f)
+            return data
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
 
+@router.get("/in_progress", response_description="Get Projects in progress")
+async def get_project_content_in_progress():
+    # if response is good return data
+    try:
+        with open("routes/projects.json", "r") as f:
+            data = json.load(f)
+            return [project for project in data if project["in_progress"]]
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
 
-@router.get("/{id}", response_description="Get Project Post", response_model= BlogContentResponse)
-def get_project_post(id: str):
-    # get the project post by id
-    # return the project post
-    return 
+@router.get("/completed", response_description="Get Projects completed")
+async def get_project_content_completed():
+    # if response is good return data
+    try:
+        with open("routes/projects.json", "r") as f:
+            data = json.load(f)
+            return [project for project in data if project["completed"]]
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
 
-
-
-
-
-@router.get("/", response_description="Get Project Posts", response_model= List[BlogContentResponse])
-def get_project_posts():
-    # get all the project posts
-    # return the project posts
-    return  
-    
+# add route to add new project to projects.json
